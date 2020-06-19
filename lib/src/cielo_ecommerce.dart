@@ -59,14 +59,27 @@ class CieloEcommerce {
   }
 
   _getErrorDio(DioError e) {
-    if (e?.response != null) {
-      List<CieloError> errors =
-          (e.response.data as List).map((i) => CieloError.fromJson(i)).toList();
-      throw CieloException(errors, e.message);
-    } else {
-      throw CieloException(
-          List<CieloError>()..add(CieloError(code: 0, message: "unknown")),
-          e.message);
+    var error;
+    if (e?.response != null && e?.response != "") {
+      if (e.response.data != null) {
+        if (e.response.statusCode == 500) {
+          if (e.response.data != null) {
+            if (e.response?.data["Message"] != null) {
+              error = e.response?.data["Message"]?.toString();
+              if (e.response?.data["ExceptionMessage"] != null) {
+                print('Foi Dio nested');
+                error =
+                "$error Details: ${e.response?.data["ExceptionMessage"]
+                    ?.toString()}";
+              }
+            }
+          }
+        } else {
+          print('Foi Dio Exception');
+          error = e.response.toString();
+        }
+      }
     }
+    print(error);
   }
 }
